@@ -76,7 +76,7 @@ export const askPickleballGuru = async (
         console.log("Grounding metadata contains web search queries:", groundingMetadata.webSearchQueries);
     }
 
-    return { text, groundingSources };
+    return { text: text || '', groundingSources };
 
   } catch (error: any) {
     console.error("Error calling Gemini API:", error);

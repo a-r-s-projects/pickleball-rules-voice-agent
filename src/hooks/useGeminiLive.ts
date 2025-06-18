@@ -63,7 +63,7 @@ export const useGeminiLive = (apiKey: string): GeminiLiveHook => {
         config: {
           systemInstruction: PICKLEBALL_SYSTEM_PROMPT,
           generationConfig: {
-            responseModalities: ['AUDIO', 'TEXT'],
+            responseModalities: ['TEXT' as any],
             speechConfig: {
               voiceConfig: {
                 prebuiltVoiceConfig: {
@@ -72,35 +72,33 @@ export const useGeminiLive = (apiKey: string): GeminiLiveHook => {
               }
             }
           }
-        }
-      });
-
-      liveSessionRef.current = liveSession;
-
-      // Set up event listeners
-      liveSession.on('message', (message: any) => {
-        if (message.serverContent) {
-          if (message.serverContent.modelTurn?.parts) {
-            const textPart = message.serverContent.modelTurn.parts.find(
-              (part: any) => part.text
-            );
-            if (textPart) {
-              setResponse(textPart.text);
+        },
+        callbacks: {
+          onmessage: (message: any) => {
+            if (message.serverContent) {
+              if (message.serverContent.modelTurn?.parts) {
+                const textPart = message.serverContent.modelTurn.parts.find(
+                  (part: any) => part.text
+                );
+                if (textPart) {
+                  setResponse(textPart.text);
+                }
+              }
             }
+          },
+          onerror: (error: any) => {
+            console.error('Live session error:', error);
+            setError(`Live session error: ${error.message}`);
+            setIsConnected(false);
+          },
+          onclose: () => {
+            setIsConnected(false);
+            setIsListening(false);
           }
         }
       });
 
-      liveSession.on('error', (error: any) => {
-        console.error('Live session error:', error);
-        setError(`Live session error: ${error.message}`);
-        setIsConnected(false);
-      });
-
-      liveSession.on('close', () => {
-        setIsConnected(false);
-        setIsListening(false);
-      });
+      liveSessionRef.current = liveSession;
 
       setIsConnected(true);
     } catch (err: any) {
