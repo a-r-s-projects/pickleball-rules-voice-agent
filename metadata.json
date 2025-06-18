@@ -1,0 +1,8 @@
+{
+  "name": "Pickleball Rules Guru",
+  "description": "An interactive web application that answers your pickleball rule questions using voice input and Gemini AI, with speech synthesis for answers and grounding from a specific datastore.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}

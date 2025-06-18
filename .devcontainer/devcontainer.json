@@ -1,0 +1,25 @@
+{
+  "name": "Pickleball Voice App",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:16",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "visibility": "public",
+      "protocol": "https"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}
