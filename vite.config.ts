@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/pickleball-rules-guru/",
+  base: '/', // Changed from '/pickleball-rules-guru/' to '/' for Vercel
 })
