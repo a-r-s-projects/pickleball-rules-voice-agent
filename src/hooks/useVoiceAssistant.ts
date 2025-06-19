@@ -60,6 +60,7 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
   const recognitionRef = useRef<any>(null);
   const genAIRef = useRef<GoogleGenerativeAI | null>(null);
   const modelRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Initialize Gemini AI
   useEffect(() => {
@@ -67,7 +68,7 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
       try {
         genAIRef.current = new GoogleGenerativeAI(apiKey);
         modelRef.current = genAIRef.current.getGenerativeModel({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           generationConfig: {
             temperature: 0.7,
             topK: 1,
@@ -145,13 +146,25 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
       
       setResponse(responseText);
       
-      // Use speech synthesis to read the response
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(responseText);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        window.speechSynthesis.speak(utterance);
+      // Use the new server-side TTS endpoint to get the audio
+      const ttsResponse = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: responseText }),
+      });
+
+      if (!ttsResponse.ok) {
+        throw new Error('Failed to fetch audio from TTS service');
       }
+
+      const audioBlob = await ttsResponse.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      audio.play();
+
     } catch (err: any) {
       console.error('Failed to generate response:', err);
       setError(`Failed to generate response: ${err.message}`);
@@ -197,6 +210,11 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     
     setIsConnected(false);
     setIsListening(false);
@@ -211,6 +229,9 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
     }
 
     try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       setTranscript('');
       setResponse('');
       recognitionRef.current.start();
