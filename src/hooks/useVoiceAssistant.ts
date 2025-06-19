@@ -66,8 +66,8 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
     if (apiKey) {
       try {
         genAIRef.current = new GoogleGenerativeAI(apiKey);
-        modelRef.current = genAIRef.current.getGenerativeModel({ 
-          model: 'gemini-pro',
+        modelRef.current = genAIRef.current.getGenerativeModel({
+          model: 'gemini-1.5-flash',
           generationConfig: {
             temperature: 0.7,
             topK: 1,
