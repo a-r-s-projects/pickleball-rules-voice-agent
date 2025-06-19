@@ -18,9 +18,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const request = {
-      input: { text },
+      input: { text: text.replace(/\*/g, '') },
       // Voice selection
-      voice: { languageCode: 'en-US', name: 'en-US-Studio-O' },
+      voice: { languageCode: 'en-US', name: 'en-US-Standard-I' },
       // Audio configuration
       audioConfig: { audioEncoding: 'MP3' },
     };
