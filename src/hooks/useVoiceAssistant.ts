@@ -147,6 +147,7 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
       setResponse(responseText);
       
       // Use the new server-side TTS endpoint to get the audio
+      console.log('Requesting TTS for response...');
       const ttsResponse = await fetch('/api/tts', {
         method: 'POST',
         headers: {
@@ -156,14 +157,35 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
       });
 
       if (!ttsResponse.ok) {
-        throw new Error('Failed to fetch audio from TTS service');
+        const errorText = await ttsResponse.text();
+        console.error('TTS API error:', ttsResponse.status, errorText);
+        throw new Error(`Failed to fetch audio from TTS service: ${ttsResponse.status}`);
       }
 
+      console.log('TTS response received, creating audio...');
       const audioBlob = await ttsResponse.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Stop any existing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
-      audio.play();
+      
+      // Add error handling for audio playback
+      audio.onerror = (e) => {
+        console.error('Audio playback error:', e);
+        setError('Failed to play audio response');
+      };
+      
+      audio.onplay = () => {
+        console.log('Audio playback started');
+      };
+      
+      await audio.play();
 
     } catch (err: any) {
       console.error('Failed to generate response:', err);
@@ -206,11 +228,6 @@ export const useVoiceAssistant = (apiKey: string | undefined): VoiceAssistantHoo
       recognitionRef.current = null;
     }
     
-    // Stop any ongoing speech synthesis
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current = null;
