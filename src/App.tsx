@@ -9,7 +9,7 @@ import { StopIcon } from './assets/StopIcon';
 import { PickleballIcon } from './assets/PickleballIcon';
 
 // Check for API Key at the module level
-const API_KEY_PRESENT: boolean = !!process.env.API_KEY;
+const API_KEY_PRESENT: boolean = !!import.meta.env.VITE_GEMINI_API_KEY;
 
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -25,7 +25,7 @@ const App: React.FC = () => {
     endSession,
     startListening,
     stopListening
-  } = useGeminiLive(process.env.API_KEY || '');
+  } = useGeminiLive(import.meta.env.VITE_GEMINI_API_KEY || '');
 
   useEffect(() => {
     const handleResize = () => {

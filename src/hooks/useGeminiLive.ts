@@ -32,7 +32,7 @@ interface GeminiLiveHook {
   stopListening: () => void;
 }
 
-export const useGeminiLive = (apiKey: string): GeminiLiveHook => {
+export const useGeminiLive = (apiKey: string | undefined): GeminiLiveHook => {
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
