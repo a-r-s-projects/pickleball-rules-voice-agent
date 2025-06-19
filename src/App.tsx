@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGeminiLive } from './hooks/useGeminiLive';
+import { useVoiceAssistant } from './hooks/useVoiceAssistant';
 import { IconButton } from './components/IconButton';
 import { AnswerCard } from './components/AnswerCard';
 import { LoadingSpinner } from './components/LoadingSpinner';
@@ -14,18 +14,18 @@ const API_KEY_PRESENT: boolean = !!import.meta.env.VITE_GEMINI_API_KEY;
 const App: React.FC = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   
-  // Use the new Gemini Live hook instead of Web Speech API
+  // Use the new Voice Assistant hook
   const {
     isConnected,
     isListening,
     transcript,
     response,
-    error: liveError,
+    error: assistantError,
     startSession,
     endSession,
     startListening,
     stopListening
-  } = useGeminiLive(import.meta.env.VITE_GEMINI_API_KEY || '');
+  } = useVoiceAssistant(import.meta.env.VITE_GEMINI_API_KEY || '');
 
   useEffect(() => {
     const handleResize = () => {
@@ -37,10 +37,10 @@ const App: React.FC = () => {
 
   // Auto-start session when API key is available
   useEffect(() => {
-    if (API_KEY_PRESENT && !isConnected && !liveError) {
+    if (API_KEY_PRESENT && !isConnected && !assistantError) {
       startSession();
     }
-  }, [API_KEY_PRESENT, isConnected, liveError, startSession]);
+  }, [API_KEY_PRESENT, isConnected, assistantError, startSession]);
 
   const handleToggleListening = () => {
     if (isListening) {
@@ -64,7 +64,7 @@ const App: React.FC = () => {
         </div>
         <p className="mt-3 text-lg text-green-100">Ask me any question about pickleball rules!</p>
         <p className="mt-1 text-sm text-green-200">
-          {isConnected ? '🟢 Live Session Active' : '🔴 Connecting...'}
+          {isConnected ? '🟢 Voice Assistant Ready' : '🔴 Connecting...'}
         </p>
       </header>
 
@@ -72,9 +72,9 @@ const App: React.FC = () => {
 
       <main className="w-full max-w-2xl bg-white/90 backdrop-blur-md shadow-2xl rounded-xl p-6 md:p-8 text-gray-800">
         
-        {liveError && (
+        {assistantError && (
           <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-md">
-            <p className="text-red-700 text-sm">{liveError}</p>
+            <p className="text-red-700 text-sm">{assistantError}</p>
             <button 
               onClick={handleReconnect}
               className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
@@ -111,7 +111,7 @@ const App: React.FC = () => {
             <AnswerCard 
               question={transcript || "Processing your question..."} 
               answer={response || "Thinking..."}
-              groundingSources={[]} // No more grounding sources needed
+              groundingSources={[]} // No grounding sources needed
               isMobile={isMobile} 
             />
           )}
@@ -120,8 +120,8 @@ const App: React.FC = () => {
       </main>
 
       <footer className="mt-12 text-center text-sm text-green-100">
-        <p>&copy; {new Date().getFullYear()} Pickleball Rules Guru. Powered by Gemini Live.</p>
-        <p className="mt-1 text-xs">Real-time voice interaction with comprehensive pickleball knowledge.</p>
+        <p>&copy; {new Date().getFullYear()} Pickleball Rules Guru. Powered by Gemini AI.</p>
+        <p className="mt-1 text-xs">Voice-powered assistant for comprehensive pickleball knowledge.</p>
       </footer>
     </div>
   );
